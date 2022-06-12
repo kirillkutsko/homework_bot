@@ -51,8 +51,9 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info('Начало отправки сообщения')
         logger.info(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
-    except Exception:
-        logger.error('Сообщение не отправлено')
+    except Exception as error:
+        logging.error(f'Сообщение не отправлено {error}')
+        raise Exception(f'Сообщение не отправлено {error}')
 
 
 def get_api_answer(current_timestamp):
@@ -63,17 +64,13 @@ def get_api_answer(current_timestamp):
         response = requests.get(**params)
         logger.info('Отправлен API запрос.')
     except Exception as error:
-        logging.error(f'Ошибка при запросе к API: {error}')
-        raise Exception(f'Ошибка при запросе к API: {error}')
+        logging.error(f'Ошибка при запросе {params}: {error}')
+        raise Exception(f'Ошибка при запросе {params}: {error}')
     if response.status_code != HTTPStatus.OK:
         status_code = response.status_code
         logging.error(f'Ошибка {status_code}')
         raise Exception(f'Ошибка {status_code}')
-    try:
-        return response.json()
-    except Exception as error:
-        logging.error(f'Ошибка при запросе {params}: {error}')
-        raise Exception(f'Ошибка при запросе {params}: {error}')
+    return response.json()
 
 
 def check_response(response):
@@ -83,10 +80,10 @@ def check_response(response):
         raise TypeError(f'Неверный формат данных {response}')
     homework_list = response.get('homeworks')
     current_date = response.get('current_date')
-    if homework_list is None:
-        raise KeyError(f'Такой ключ {homework_list} отстуствует на сервере')
-    if current_date is None:
-        raise KeyError(f'Такой ключ {current_date} отстуствует на сервере')
+    if homework_list or current_date is None:
+        raise KeyError(
+            f'Такой ключ {homework_list} {current_date} отстуствует на сервере'
+        )
     if not isinstance(homework_list, list):
         raise TypeError(f'Неверный формат данных {homework_list}')
     return homework_list
@@ -94,14 +91,12 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлечь информацию о статусе домашней работы."""
-    homework_name = homework['homework_name']
-    homework_status = homework['status']
+    homework_name = homework.get('homework_name')
+    homework_status = homework.get('status')
     if 'homework_name' not in homework:
-        logger.error('Работы с таким именем не обнаружено')
         raise KeyError('Работы с таким именем не обнаружено')
     if homework_status not in HOMEWORK_STATUSES:
-        logger.error('Непредвиденный статус работы')
-        raise KeyError('Непредвиденный статус работы')
+        raise Exception(f'Неизвестный статус работы: {homework_status}')
     verdict = HOMEWORK_STATUSES[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
