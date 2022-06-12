@@ -62,10 +62,17 @@ def get_api_answer(current_timestamp):
     try:
         response = requests.get(**params)
         logger.info('Отправлен API запрос.')
-        if response.status_code != HTTPStatus.OK:
-            raise ConnectionError('Сайт недоступен')
+    except Exception as error:
+        logging.error(f'Ошибка при запросе к API: {error}')
+        raise Exception(f'Ошибка при запросе к API: {error}')
+    if response.status_code != HTTPStatus.OK:
+        status_code = response.status_code
+        logging.error(f'Ошибка {status_code}')
+        raise Exception(f'Ошибка {status_code}')
+    try:
         return response.json()
     except Exception as error:
+        logging.error(f'Ошибка при запросе {params}: {error}')
         raise Exception(f'Ошибка при запросе {params}: {error}')
 
 
