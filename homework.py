@@ -20,7 +20,7 @@ HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s - %(lineno)d',
     encoding='utf-8',
     filename='homework_bot/logging/main.log',
     filemode="w"
@@ -34,7 +34,7 @@ handler = RotatingFileHandler(
 )
 logger.addHandler(handler)
 formatter = logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(message)s'
+    '%(asctime)s - %(levelname)s - %(message)s - %(lineno)d'
 )
 handler.setFormatter(formatter)
 
@@ -116,12 +116,13 @@ def main():
                     'current_date',
                     current_timestamp
                 )
-                homework = check_response(response)
-                message = parse_status(homework[0])
+                homeworks = check_response(response)
+                message = parse_status(homeworks[0])
                 bot.send_message(TELEGRAM_CHAT_ID, message)
                 time.sleep(RETRY_TIME)
             except Exception as error:
                 message = f'Сбой в работе программы: {error}'
+                logger.error(f'Сбой в работе программы: {error}')
                 bot.send_message(TELEGRAM_CHAT_ID, message)
                 time.sleep(RETRY_TIME)
     else:
