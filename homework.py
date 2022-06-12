@@ -49,6 +49,7 @@ def send_message(bot, message):
     """Отправить сообщение о результатах ревью."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
+        logger.info('Начало отправки сообщения')
         logger.info(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
     except Exception:
         logger.error('Сообщение не отправлено')
@@ -60,9 +61,9 @@ def get_api_answer(current_timestamp):
                   params={'from_date': current_timestamp})
     try:
         response = requests.get(**params)
+        logger.info('Отправлен API запрос.')
         if response.status_code != HTTPStatus.OK:
             raise ConnectionError('Сайт недоступен')
-        print(response.json())
         return response.json()
     except Exception as error:
         raise Exception(f'Ошибка при запросе {params}: {error}')
@@ -70,11 +71,11 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверить корректность ответа API."""
-    logging.info('Начало получение ответа от сервера')
-    homework_list = response['homeworks']
-    current_date = response.get('current_date')
+    logging.info('Начало получения ответа от сервера')
     if not isinstance(response, dict):
         raise TypeError(f'Неверный формат данных {response}')
+    homework_list = response.get('homeworks')
+    current_date = response.get('current_date')
     if homework_list is None:
         raise KeyError(f'Такой ключ {homework_list} отстуствует на сервере')
     if current_date is None:
