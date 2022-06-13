@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from http import HTTPStatus
 from logging.handlers import RotatingFileHandler
@@ -111,26 +112,27 @@ def main():
     """Основная логика работы бота."""
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-    if check_tokens() is True:
-        while True:
-            try:
-                response = get_api_answer(current_timestamp)
-                current_timestamp = response.get(
-                    'current_date',
-                    current_timestamp
-                )
-                homeworks = check_response(response)
-                message = parse_status(homeworks[0])
-                bot.send_message(TELEGRAM_CHAT_ID, message)
-                time.sleep(RETRY_TIME)
-            except Exception as error:
-                message = f'Сбой в работе программы: {error}'
-                logger.error(f'Сбой в работе программы: {error}')
-                bot.send_message(TELEGRAM_CHAT_ID, message)
-                time.sleep(RETRY_TIME)
-    else:
-        raise KeyError('Отсутсвует один из элементов')
-        logger.critical('Отсутсвует один из элементов')
+    cache_message = ''
+    cache_error_message = ''
+    if not check_tokens():
+        logger.critical('Отсутсвует один из токенов')
+        sys.exit('Отсутсвует один из токенов')
+    while True:
+        try:
+            response = get_api_answer(current_timestamp)
+            current_timestamp = response.get('current_date')
+            message = parse_status(check_response(response))
+            if message != cache_message:
+                send_message(bot, message)
+                cache_message = message
+            time.sleep(RETRY_TIME)
+        except Exception as error:
+            logger.error(f'Сбой в работе программы: {error}')
+            message_error = f'Сбой в работе программы: {error}'
+            if message_error != cache_error_message:
+                send_message(bot, message_error)
+                cache_error_message = message_error
+        time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
