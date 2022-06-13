@@ -121,7 +121,8 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
-            message = parse_status(check_response(response))
+            homeworks = check_response(response)
+            message = parse_status(homeworks[0])
             if message != cache_message:
                 send_message(bot, message)
                 cache_message = message
