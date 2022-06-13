@@ -87,7 +87,7 @@ def check_response(response):
         )
     if not isinstance(homework_list, list):
         raise TypeError(f'Неверный формат данных {homework_list}')
-    return homework_list[0]
+    return homework_list
 
 
 def parse_status(homework):
@@ -121,7 +121,9 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
-            message = parse_status(check_response(response))
+            # message = parse_status(check_response(response))
+            homework = check_response(response)
+            message = parse_status(homework[0])
             if message != cache_message:
                 send_message(bot, message)
                 cache_message = message
