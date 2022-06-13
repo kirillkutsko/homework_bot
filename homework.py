@@ -80,7 +80,7 @@ def check_response(response):
         raise TypeError(f'Неверный формат данных {response}')
     homework_list = response.get('homeworks')
     current_date = response.get('current_date')
-    if homework_list or current_date is None:
+    if homework_list is None or current_date is None:
         raise KeyError(
             f'Такой ключ {homework_list} {current_date} отстуствует на сервере'
         )
@@ -103,7 +103,7 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверить доступность переменных окружения."""
-    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
+    if all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)):
         return True
 
 
