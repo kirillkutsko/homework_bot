@@ -92,8 +92,8 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлечь информацию о статусе домашней работы."""
-    homework_name = homework.get('homework_name')
-    homework_status = homework.get('status')
+    homework_name = homework['homework_name']
+    homework_status = homework['status']
     if 'homework_name' not in homework:
         raise KeyError('Работы с таким именем не обнаружено')
     if homework_status not in HOMEWORK_STATUSES:
@@ -121,8 +121,7 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
-            homeworks = check_response(response)
-            message = parse_status(homeworks[0])
+            message = parse_status(check_response(response))
             if message != cache_message:
                 send_message(bot, message)
                 cache_message = message
