@@ -87,7 +87,7 @@ def check_response(response):
         )
     if not isinstance(homework_list, list):
         raise TypeError(f'Неверный формат данных {homework_list}')
-    return homework_list
+    return homework_list[0]
 
 
 def parse_status(homework):
