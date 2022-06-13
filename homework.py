@@ -123,7 +123,7 @@ def main():
             current_timestamp = response.get('current_date')
             # message = parse_status(check_response(response))
             homework = check_response(response)
-            message = parse_status(homework[0])
+            message = parse_status(homework)
             if message != cache_message:
                 send_message(bot, message)
                 cache_message = message
