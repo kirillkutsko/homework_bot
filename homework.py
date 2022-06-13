@@ -79,7 +79,7 @@ def check_response(response):
     logging.info('Начало получения ответа от сервера')
     if not isinstance(response, dict):
         raise TypeError(f'Неверный формат данных {response}')
-    homework_list = response.get('homeworks')
+    homework_list = response['homeworks']
     current_date = response.get('current_date')
     if homework_list is None or current_date is None:
         raise KeyError(
@@ -92,7 +92,7 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлечь информацию о статусе домашней работы."""
-    homework_name = homework['homework_name']
+    homework_name = homework.get('homework_name')
     homework_status = homework['status']
     if 'homework_name' not in homework:
         raise KeyError('Работы с таким именем не обнаружено')
@@ -123,7 +123,7 @@ def main():
             current_timestamp = response.get('current_date')
             # message = parse_status(check_response(response))
             homework = check_response(response)
-            message = parse_status(homework)
+            message = parse_status(homework[0])
             if message != cache_message:
                 send_message(bot, message)
                 cache_message = message
