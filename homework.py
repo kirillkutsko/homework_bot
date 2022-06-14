@@ -48,9 +48,9 @@ HOMEWORK_STATUSES = {
 
 def send_message(bot, message):
     """Отправить сообщение о результатах ревью."""
+    logger.info('Начало отправки сообщения')
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-        logger.info('Начало отправки сообщения')
         logger.info(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
     except Exception as error:
         logging.error(f'Сообщение не отправлено {error}')
@@ -76,7 +76,7 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверить корректность ответа API."""
-    logging.info('Начало получения ответа от сервера')
+    logging.info('Выбока данных из API ответа.')
     if not isinstance(response, dict):
         raise TypeError(f'Неверный формат данных {response}')
     homework_list = response['homeworks']
@@ -121,9 +121,8 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
-            # message = parse_status(check_response(response))
-            homework = check_response(response)
-            message = parse_status(homework[0])
+            homeworks = check_response(response)
+            message = parse_status(homeworks[0])
             if message != cache_message:
                 send_message(bot, message)
                 cache_message = message
