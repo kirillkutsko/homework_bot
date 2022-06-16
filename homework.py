@@ -79,15 +79,15 @@ def check_response(response):
     logging.info('Выбока данных из API ответа.')
     if not isinstance(response, dict):
         raise TypeError(f'Неверный формат данных {response}')
-    homework_list = response['homeworks']
+    homeworks = response.get('homeworks')
     current_date = response.get('current_date')
-    if homework_list is None or current_date is None:
+    if homeworks is None or current_date is None:
         raise KeyError(
-            f'Такой ключ {homework_list} {current_date} отстуствует на сервере'
+            f'Ключ homeworks или current_date отстуствует на сервере'
         )
-    if not isinstance(homework_list, list):
-        raise TypeError(f'Неверный формат данных {homework_list}')
-    return homework_list
+    if not isinstance(homeworks, list):
+        raise TypeError(f'Неверный формат данных {homeworks}')
+    return homeworks
 
 
 def parse_status(homework):
