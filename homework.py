@@ -116,7 +116,10 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            current_timestamp = response.get('current_date')
+            current_timestamp = response.get(
+                'current_date',
+                default=int(time.time())
+            )
             homeworks = check_response(response)
             message = parse_status(homeworks[0])
             if message is not None and message != cache_message:
