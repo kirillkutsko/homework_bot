@@ -83,7 +83,7 @@ def check_response(response):
     current_date = response.get('current_date')
     if homeworks is None or current_date is None:
         raise KeyError(
-            f'Ключ homeworks или current_date отстуствует на сервере'
+            'Ключ homeworks или current_date отстуствует на сервере'
         )
     if not isinstance(homeworks, list):
         raise TypeError(f'Неверный формат данных {homeworks}')
@@ -93,8 +93,8 @@ def check_response(response):
 def parse_status(homework):
     """Извлечь информацию о статусе домашней работы."""
     homework_name = homework.get('homework_name')
-    homework_status = homework['status']
-    if 'homework_name' not in homework:
+    homework_status = homework.get('status')
+    if homework_name is None:
         raise KeyError('Работы с таким именем не обнаружено')
     if homework_status not in HOMEWORK_STATUSES:
         raise Exception(f'Неизвестный статус работы: {homework_status}')
@@ -110,30 +110,32 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
+    if not check_tokens():
+        logger.critical('Отсутсвует один из токенов')
+        sys.exit('Отсутсвует один из токенов')
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     cache_message = ''
     cache_error_message = ''
-    if not check_tokens():
-        logger.critical('Отсутсвует один из токенов')
-        sys.exit('Отсутсвует один из токенов')
     while True:
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
             homeworks = check_response(response)
             message = parse_status(homeworks[0])
-            if message != cache_message:
+            if message is not None and message != cache_message:
                 send_message(bot, message)
                 cache_message = message
-            time.sleep(RETRY_TIME)
+            else:
+                logger.info('Cтатус ревью не изменился.')
         except Exception as error:
             logger.error(f'Сбой в работе программы: {error}')
             message_error = f'Сбой в работе программы: {error}'
             if message_error != cache_error_message:
                 send_message(bot, message_error)
                 cache_error_message = message_error
-        time.sleep(RETRY_TIME)
+        finally:
+            time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
