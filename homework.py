@@ -118,15 +118,19 @@ def main():
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get(
                 'current_date',
-                default=int(time.time())
+                int(time.time())
             )
             homeworks = check_response(response)
-            message = parse_status(homeworks[0])
-            if message is not None and message != cache_message:
-                send_message(bot, message)
-                cache_message = message
-            else:
-                logger.info('Cтатус ревью не изменился.')
+            try:
+                message = parse_status(homeworks[0])
+                if message is not None and message != cache_message:
+                    send_message(bot, message)
+                    cache_message = message
+                else:
+                    logger.info('Cтатус ревью не изменился.')
+            except IndexError:
+                logger.error('Список домашних работ пуст')
+                raise IndexError('Список домашних работ пуст')
         except Exception as error:
             logger.error(f'Сбой в работе программы: {error}')
             message_error = f'Сбой в работе программы: {error}'
