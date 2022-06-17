@@ -53,7 +53,6 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
     except Exception as error:
-        logging.error(f'Сообщение не отправлено {error}')
         raise Exception(f'Сообщение не отправлено {error}')
 
 
@@ -65,25 +64,23 @@ def get_api_answer(current_timestamp):
         response = requests.get(**params)
         logger.info('Отправлен API запрос.')
     except Exception as error:
-        logging.error(f'Ошибка при запросе {params}: {error}')
         raise Exception(f'Ошибка при запросе {params}: {error}')
     if response.status_code != HTTPStatus.OK:
         status_code = response.status_code
-        logging.error(f'Ошибка {status_code}')
         raise Exception(f'Ошибка {status_code}')
     return response.json()
 
 
 def check_response(response):
     """Проверить корректность ответа API."""
-    logging.info('Выбока данных из API ответа.')
+    logging.info('Выборка данных из API ответа.')
     if not isinstance(response, dict):
         raise TypeError(f'Неверный формат данных {response}')
     homeworks = response.get('homeworks')
     current_date = response.get('current_date')
     if homeworks is None or current_date is None:
         raise KeyError(
-            'Ключ homeworks или current_date отстуствует на сервере'
+            'Ключ homeworks или current_date отстуствует в ответе сервера'
         )
     if not isinstance(homeworks, list):
         raise TypeError(f'Неверный формат данных {homeworks}')
@@ -95,7 +92,7 @@ def parse_status(homework):
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
     if homework_name is None:
-        raise KeyError('Работы с таким именем не обнаружено')
+        raise KeyError(f'Работы с именем {homework_name} не обнаружено')
     if homework_status not in HOMEWORK_STATUSES:
         raise Exception(f'Неизвестный статус работы: {homework_status}')
     verdict = HOMEWORK_STATUSES[homework_status]
@@ -104,8 +101,7 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверить доступность переменных окружения."""
-    if all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)):
-        return True
+    return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def main():
