@@ -119,7 +119,7 @@ def main():
             current_timestamp = response.get(
                 'current_date',
                 int(time.time())
-                )
+            )
             homeworks = check_response(response)
             try:
                 message = parse_status(homeworks[0])
