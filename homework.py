@@ -121,16 +121,13 @@ def main():
                 int(time.time())
             )
             homeworks = check_response(response)
-            try:
+            if homeworks > 0:
                 message = parse_status(homeworks[0])
-                if message is not None and message != cache_message:
+                if message != cache_message:
                     send_message(bot, message)
                     cache_message = message
                 else:
                     logger.info('Cтатус ревью не изменился.')
-            except IndexError:
-                logger.error('Список домашних работ пуст')
-                raise IndexError('Список домашних работ пуст')
         except Exception as error:
             logger.error(f'Сбой в работе программы: {error}')
             message_error = f'Сбой в работе программы: {error}'
