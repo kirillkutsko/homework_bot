@@ -121,7 +121,7 @@ def main():
                 int(time.time())
             )
             homeworks = check_response(response)
-            if homeworks > 0:
+            if len(homeworks) > 0:
                 message = parse_status(homeworks[0])
                 if message != cache_message:
                     send_message(bot, message)
